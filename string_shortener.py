@@ -8,7 +8,7 @@ def shorten_strings(strings, target_length, log_file="shorten_log.txt"):
         target_length: Желаемая длина сокращенных строк.
         log_file: Файл для логирования.
     Returns:
-        Список сокращенных уникальних строк.
+        Список сокращенных уникальных строк.
     """
     if target_length <= 0:
         raise ValueError("Довжина повинна бути додатньою")
@@ -48,7 +48,7 @@ def shorten_strings(strings, target_length, log_file="shorten_log.txt"):
                     shortened.append(f"{s[0]}..{s[-1]}")
                 else:
                     dots = 3
-                    start_len = (target_length - dots) // 2
+                    start_len = max(1, (target_length - dots + 1) // 2)
                     end_len = target_length - dots - start_len
                     shortened.append(f"{s[:start_len]}...{s[-end_len:]}")
             f.write(f"Скорочено: {s} -> {shortened[-1]}\n")
@@ -96,3 +96,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Updated in revisions branch
