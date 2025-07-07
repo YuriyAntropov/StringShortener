@@ -1,92 +1,81 @@
 import time
-
 def shorten_strings(strings, target_length, log_file="shorten_log.txt"):
-
-    if target_length <= 0:
-        raise ValueError("Довжина повинна бути додатньою")
-
+    if target_length<3:
+        raise ValueError("Довжина повинна бути не менше 3, щоб забезпечити щонайменше одну крапку між першою та останньою буквою")
     with open(log_file, 'a', encoding='utf-8') as f:
-        # Логирование начала процеса
         f.write(f"\n{time.ctime()}: Початок скорочення\n")
         f.write(f"Вхідні рядки: {strings}\n")
         f.write(f"Цільова довжина: {target_length}\n")
-
-        # унікальність вхідних рядків
-        unique_strings = []
-        count = {}
-        for s in strings:
-            if s in count:
-                count[s] += 1
-                unique_s = f"{s}{count[s]}"
-                unique_strings.append(unique_s)
-                f.write(f"Додано цифру до неунікального рядка: {s} -> {unique_s}\n")
+    count={}
+    for s in strings:
+        count[s]=count.get(s, 0)+1
+    unique_origs=list(dict.fromkeys(strings))
+    short_map={} 
+    used_shorts=set()
+    for orig in unique_origs:
+        if len(orig)<=target_length:
+            short=orig
+        else:
+            for dots in [3, 2, 1]:
+                if target_length==3 and dots!=1:
+                    continue
+                if target_length==4 and dots!=2:
+                    continue
+                if target_length==5 and dots!=3:
+                    continue
+                remaining=target_length-dots-2
+                if remaining<0:
+                    continue
+                start_len=(remaining+1)//2
+                end_len=remaining-start_len
+                candidate=f"{orig[:start_len+1]}{'.' * dots}{orig[-(end_len+1):]}"
+                if candidate not in used_shorts:
+                    short=candidate
+                    used_shorts.add(short)
+                    break
             else:
-                count[s] = 0
-                unique_strings.append(s)
-
-        # Шаг 2: Сокращаем строки
-        shortened = []
-        for s in unique_strings:
-            if len(s) <= target_length:
-                shortened.append(s)
-            else:
-                if target_length == 1:
-                    shortened.append(s[0])
-                elif target_length == 2:
-                    shortened.append(s[:2])
-                elif target_length == 3:
-                    shortened.append(f"{s[0]}.{s[-1]}")
-                elif target_length == 4:
-                    shortened.append(f"{s[0]}..{s[-1]}")
-                else:
-                    dots = 3
-                    start_len = (target_length - dots) // 2
-                    end_len = target_length - dots - start_len
-                    shortened.append(f"{s[:start_len]}...{s[-end_len:]}")
-            f.write(f"Скорочено: {s} -> {shortened[-1]}\n")
-
-        # унікальність скорочених рядків
-        result = []
-        count = {}
-        for s in shortened:
-            if s in count:
-                count[s] += 1
-                result.append(f"{s}{count[s]}")
-                f.write(f"Додано цифру до неунікального скороченого рядка: {s} -> {s}{count[s]}\n")
-            else:
-                count[s] = 0
-                result.append(s)
-
-        # Логирование результата
+                short=f"{orig[:start_len+1]}{'.' * dots}{orig[-(end_len+1):]}"
+                used_shorts.add(short)
+        short_map[orig]=short
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(f"Скорочено: {orig} -> {short}\n")
+    shortened=[short_map[orig] for orig in strings]
+    result=[]
+    seen={}
+    for orig, short in zip(strings, shortened):
+        if orig in seen:
+            seen[orig] += 1
+            unique_short=f"{short}{seen[orig]}"
+            result.append(unique_short)
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write(f"Додано цифру до неунікального скороченого рядка: {short} -> {unique_short} (оригінал: {orig})\n")
+        else:
+            seen[orig]=0
+            result.append(short)
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(f"Обробка: {orig} -> {result[-1]}\n")
+    with open(log_file, 'a', encoding='utf-8') as f:
         f.write(f"Результат: {result}\n")
         f.write(f"{time.ctime()}: Кінець скорочення\n")
-
     return result
-
 def main():
     print("Введіть рядки (вводьте порожній рядок для завершення):")
-    strings = []
+    strings=[]
     while True:
-        s = input()
-        if s == "":
+        s=input()
+        if s=="":
             break
         strings.append(s)
-
     try:
-        target_length = int(input("Введіть бажану довжину скорочення: "))
-        if target_length <= 0:
-            raise ValueError("Довжина повинна бути додатною")
+        target_length=int(input("Введіть бажану довжину скорочення (не менше 3): "))
+        if target_length<3:
+            raise ValueError("Довжина повинна бути не менше 3, щоб забезпечити щонайменше одну крапку між першою та останньою буквою")
     except ValueError as e:
         print(f"Помилка: {e}")
         return
-
-    result = shorten_strings(strings, target_length)
-
+    result=shorten_strings(strings, target_length)
     print("\nСкорочені рядки:")
     for i, s in enumerate(result, 1):
         print(f"{i}. {s}")
-
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
-
-# Updated in revisions branch
