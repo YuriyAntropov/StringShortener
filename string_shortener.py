@@ -1,25 +1,17 @@
 import time
 
 def shorten_strings(strings, target_length, log_file="shorten_log.txt"):
-    """
-    Сокращает строки до заданной длины, обеспечивая уникальность, и логирует процесс.
-    Args:
-        strings: Список входных строк.
-        target_length: Желаемая длина сокращенных строк.
-        log_file: Файл для логирования.
-    Returns:
-        Список сокращенных уникальных строк.
-    """
+
     if target_length <= 0:
         raise ValueError("Довжина повинна бути додатньою")
 
     with open(log_file, 'a', encoding='utf-8') as f:
-        # Логирование начала процесса
+        # Логирование начала процеса
         f.write(f"\n{time.ctime()}: Початок скорочення\n")
         f.write(f"Вхідні рядки: {strings}\n")
         f.write(f"Цільова довжина: {target_length}\n")
 
-        # Шаг 1: Обеспечиваем уникальность входных строк
+        # унікальність вхідних рядків
         unique_strings = []
         count = {}
         for s in strings:
@@ -48,12 +40,12 @@ def shorten_strings(strings, target_length, log_file="shorten_log.txt"):
                     shortened.append(f"{s[0]}..{s[-1]}")
                 else:
                     dots = 3
-                    start_len = max(1, (target_length - dots + 1) // 2)
+                    start_len = (target_length - dots) // 2
                     end_len = target_length - dots - start_len
                     shortened.append(f"{s[:start_len]}...{s[-end_len:]}")
             f.write(f"Скорочено: {s} -> {shortened[-1]}\n")
 
-        # Шаг 3: Обеспечиваем уникальность сокращенных строк
+        # унікальність скорочених рядків
         result = []
         count = {}
         for s in shortened:
